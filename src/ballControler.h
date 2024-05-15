@@ -3,10 +3,7 @@
 #include "ball.h"
 #include "LinkList.h"
 #include "math.h"
-
-#define WINDOWWITH 600
-#define WINDOWHEIGHT 600
-
+#include "conf.h"
 
 
 void drawBallList(Node* head);

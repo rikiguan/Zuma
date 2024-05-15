@@ -6,8 +6,9 @@
 #include <iostream>
 #include <chrono>
 #include "ballControler.h"
+#include "conf.h"
 
-float speed = 5;
+float speed = ballSpeed;
 time_t pulse;
 extern int length;
 using namespace std;
@@ -29,7 +30,7 @@ void drawFps(int fps) {
 	char fpsDisplay[200];
 	sprintf_s(fpsDisplay, "fps: %d | length:%d",fps, length);
 	settextstyle(16, 0, _T("Consolas"));
-	settextcolor(WHITE);
+	settextcolor(txC);
 	wchar_t wstr[100];
 	mbstowcs_s(0, wstr, fpsDisplay, 100);
 	outtextxy(10, 5, wstr);
@@ -38,7 +39,7 @@ void drawFps(int fps) {
 void GameOver(long score) {
 	char Display[200];
 	sprintf_s(Display, "gameover within %ld s", score);
-	settextcolor(WHITE);
+	settextcolor(txC);
 	settextstyle(30, 0, _T("Consolas"));
 	wchar_t wstr[100];
 	mbstowcs_s(0, wstr, Display, 100);
@@ -65,7 +66,8 @@ int main()
 
 	// 初始化绘图窗口
 	initgraph(WINDOWWITH, WINDOWHEIGHT);
-	setbkcolor(BLACK);
+	//setbkcolor(BLACK);
+	setbkcolor(bgC);
 	cleardevice();
 
 	//初始化球链
@@ -110,10 +112,12 @@ int main()
 			AvgFps = 0;
 		}
 
-		if (delayForSec > 1000000) {
+		if (delayForSec > addBallSpeed) {
 			addGenBall(head);
-			delayForSec %= 1000000;
+			delayForSec %= addBallSpeed;
 		}
+
+
 
 		// 鼠标消息处理
 		if (MouseHit())

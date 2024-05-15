@@ -1,4 +1,3 @@
-
 #pragma once
 
 #ifndef _BALL_H_

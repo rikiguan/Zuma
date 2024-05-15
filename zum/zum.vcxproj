@@ -134,6 +134,7 @@
   <ItemGroup>
     <ClInclude Include="..\src\ball.h" />
     <ClInclude Include="..\src\ballControler.h" />
+    <ClInclude Include="..\src\conf.h" />
     <ClInclude Include="..\src\LinkList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
