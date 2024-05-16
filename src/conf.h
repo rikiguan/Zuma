@@ -6,6 +6,6 @@
 #define bgC WHITE
 #define txC BLACK
 
-#define ballSpeed 5 //射出球速
-
-#define addBallSpeed 1000000 //增加球间隔1s
+#define ballSpeed 7 //射出球速
+#define defultDifficult 1
+#define addBallSpeedD 1000000 //增加球间隔1s

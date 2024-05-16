@@ -75,42 +75,57 @@ void updateBallCurrnetPos(Node* head,int pulse)
 }
 
 
-void eliminateBall(Node* head, int index, int c) {
+void eliminateBall(Node* head, int index) {
 	Node* p = head;
 	Node* q;
+	ball tempb;
+	int flag=0;
+	int deleteNumPrev=0;
+
 	int j = 0;
+	//找到index节点
 	while (p->next && j < index)
 	{
 		p = p->next;
 		++j;
 	}
 	if (j != index) return;
+	tempb = p->data;
 	q = p;
 	Node* tmp = q->next;
 	while (tmp) {
 		q = tmp;
 		tmp = q->next;
-		if (q->data.c == c) {
+		if (q->data.c == tempb.c) {
 			ListDeleteAddr(q);
+			flag = 1;
 			length--;
 		}
 		else {
 			break;
 		}
 	}
-	tmp = p;
+	tmp = p->prev;
 	while (tmp) {
 		q = tmp;
 		tmp = q->prev;
-		if (q->data.c == c) {
+		if (q->data.c == tempb.c) {
 			ListDeleteAddr(q);
+			flag = 1;
 			length--;
+			deleteNumPrev++;
 		}
 		else {
 			break;
 		}
 	}
-
+	if (flag) {
+		ListDeleteAddr(p);
+		updateBallPos(head);
+		eliminateBall(head, index - deleteNumPrev-1);
+		eliminateBall(head, index - deleteNumPrev + 1);
+		length--;
+	}
 }
 
 //球碰撞检测
@@ -133,16 +148,13 @@ void collisionDetection(Node* head, Node* chead)
 
 			if (dist < BALLRADIUS* BALLRADIUS)
 			{
-				if (b.c == p->data.c) {
+				//if (b.c == p->data.c) {
 					//同色情况
-					eliminateBall(head, index, b.c);
-					//updateBallPos(head);
-				}
-				else {
-					ListInsert(head, index, b);
-					length++;
-					//updateBallPos(head);
-				}
+				ListInsert(head, index+1, b);
+				length++;
+
+				eliminateBall(head, index+2);
+
 				ListDelete(chead, i);
 				length--;
 				return;
@@ -241,7 +253,7 @@ void drawSingleBall(ball b)
 	IMAGE img_mm;
 	//loadimage(&img_mm, _T("D:\\workspace\\oj\\zum\\src\\p2.ico"));
 	char file_name[200];
-	sprintf_s(file_name, "../src/p%d.ico", b.c);
+	sprintf_s(file_name, "../src/pic/p%d.ico", b.c);
 	wchar_t wstr[100];
 	mbstowcs_s(0, wstr, file_name, 100);
 	loadimage(&img_mm, wstr, BALLRADIUS * 2, BALLRADIUS * 2);

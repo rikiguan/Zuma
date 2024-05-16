@@ -9,6 +9,8 @@
 #include "conf.h"
 
 float speed = ballSpeed;
+float difficulty = defultDifficult;
+int addBallSpeed = addBallSpeedD;
 time_t pulse;
 extern int length;
 using namespace std;
@@ -20,21 +22,34 @@ time_t GetCurrentTimeMsec() {
 	return timestamp;
 }
 
-void genNextBall(ball * next,int x,int y) {
-	next->c = rand() % 6;
+int randomSmooth = 0;
+int randomSmoothC = 0;
+
+void genNextBallSmooth(ball * next,int x,int y,int random) {
+	if ((!randomSmooth--)&& int(6 /difficulty)) {
+		randomSmoothC= rand() % 6;
+		randomSmooth= rand() % (int(3 / difficulty));
+	}
+	//randomSmooth--;
+	next->c = randomSmoothC;
+	if (random) {
+		next->c = rand() % 6;
+	}
 	next->x = x;
 	next->y = y;
 }
 
+
 void drawFps(int fps) {
 	char fpsDisplay[200];
-	sprintf_s(fpsDisplay, "fps: %d | length:%d",fps, length);
+	sprintf_s(fpsDisplay, "fps: %d | length:%d                           difficulty:%.2f",fps, length,difficulty);
 	settextstyle(16, 0, _T("Consolas"));
 	settextcolor(txC);
 	wchar_t wstr[100];
 	mbstowcs_s(0, wstr, fpsDisplay, 100);
 	outtextxy(10, 5, wstr);
 }
+
 
 void GameOver(long score) {
 	char Display[200];
@@ -45,9 +60,9 @@ void GameOver(long score) {
 	mbstowcs_s(0, wstr, Display, 100);
 	outtextxy(WINDOWWITH/2*0.3, WINDOWHEIGHT*0.7, wstr);
 }
-void addGenBall(Node* head) {
+void addGenBall(Node* head,int random) {
 	ball b;
-	genNextBall(&b, WINDOWHEIGHT / 2, 0);
+	genNextBallSmooth(&b, WINDOWHEIGHT / 2, 0, random);
 	ListInsert(head, 0, b);
 	length++;
 }
@@ -59,6 +74,15 @@ bool tellGameOver(int length) {
 	return false;
 }
 
+void difficultyControl(time_t time, time_t timeBegin) {
+	addBallSpeed = addBallSpeedD / sqrt(difficulty);
+	if (difficulty >= 0.85) {
+		difficulty += sqrt((30-length)) * (time - timeBegin) / 1e13;
+		//difficulty +=(30 - length) * (time - timeBegin) / 1e13;
+	}
+	
+	speed = ballSpeed / sqrt(difficulty);
+}
 
 int main()
 {
@@ -92,7 +116,7 @@ int main()
 
 	long AvgFps = 0;
 
-	genNextBall(&nextBall, WINDOWWITH / 2, WINDOWHEIGHT);
+	genNextBallSmooth(&nextBall, WINDOWWITH / 2, WINDOWHEIGHT,1);
 	while (true)
 	{
 		//帧率处理函数
@@ -110,10 +134,12 @@ int main()
 			fps = AvgFps * 2;
 			delayFor20kMilisec %= 500000;
 			AvgFps = 0;
+
+			
 		}
 
 		if (delayForSec > addBallSpeed) {
-			addGenBall(head);
+			addGenBall(head,0);
 			delayForSec %= addBallSpeed;
 		}
 
@@ -136,7 +162,7 @@ int main()
 				tempB.x = nextBall.x;
 				tempB.y = nextBall.y;
 				ListInsert(headCol, 0, tempB);
-				genNextBall(&nextBall, WINDOWWITH / 2,WINDOWHEIGHT);
+				genNextBallSmooth(&nextBall, WINDOWWITH / 2,WINDOWHEIGHT,1);
 				length++;
 				break;
 
@@ -163,6 +189,9 @@ int main()
 		updateBallColPos(headCol, speed, pulse);
 		drawBallList(headCol);
 		collisionDetection(head, headCol);
+
+		difficultyControl(time,timeBegin);
+		
 
 		while (tellGameOver(length)) {
 			GameOver((time-timeBegin)/1e6);
